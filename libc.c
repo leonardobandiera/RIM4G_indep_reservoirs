@@ -98,14 +98,16 @@ void init_generator(int random_state_iteration,int nthreads){
  rng_threads_init(nthreads, seed);
  } 
 
-
-float** binary_sparse(int row_dimension, int column_dimension, int n_connections, int random_state)
+///introduzione delle matrici a blocchi, così da simulare reservoir indipendenti.
+///aggiunta tra i parametri della funzione int n_blocks, che definisce il numero di blocchi della matrice.
+float** binary_sparse(int row_dimension, int column_dimension, int n_connections, int random_state, int n_blocks)
 { 
     float **M = malloc(row_dimension*sizeof(float*)); 
     
     if (random_state != -1) srand(random_state);
     else srand(time(NULL));
-    
+
+    /*
     for (int row=0; row<row_dimension; row++){ 
          M[row] = calloc(column_dimension, sizeof(float)); 
          //M[row] = malloc(column_dimension*sizeof(float)); 
@@ -119,6 +121,18 @@ float** binary_sparse(int row_dimension, int column_dimension, int n_connections
          } 
          
       }
+    */
+
+    int block_size = column_dimension / n_blocks;
+    for (int row=0, row<row_dimension, row++){
+        M[row] = calloc(column_dimension, sizeof(float));
+        int block_id = row / block_size; //contrassegno ogni blocco con un id
+        int start = block_id * block_size;
+        for (int k=0, k<n_connections, k++){
+            int j = start + (genrand64_int64()%column_dimension); //connessioni solo dentro il blocco
+            M[row][j] = 2*(int)(genrand64_int64()%2) -1;
+        }
+    }
       
       return M; 
 } 
