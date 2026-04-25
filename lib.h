@@ -40,7 +40,7 @@ typedef struct Sparse_matrix {
 
 void init_generator(int,int); 
 float** generate_dense_matrix(int,int);
-float** binary_sparse(int ,int , int , int );
+float** binary_sparse(int ,int , int , int, int ); //added one int for the newly added n_blocks
 float** uniform_sparse(int, int, int, int); 
 float** binary_symmetric_sparse(int, int, int);
 void print_matrix(float**, int,int);
