@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include "../include/lib.h"
+
 /*
 These unit tests aim at checking the correct implementation of block matrices,
 specifically for binary sparse matrices.
