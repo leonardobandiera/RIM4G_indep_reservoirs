@@ -8,18 +8,6 @@ These unit tests aim at checking the correct implementation of block matrices,
 specifically for binary sparse matrices.
 */
 
-void print_matrix(float **M, int row_dimension, int column_dimension) {
-
-    for(int i = 0; i < row_dimension; i++) {
-
-        for(int j = 0; j < column_dimension; j++) {
-            printf("%2.0f ", M[i][j]);
-        }
-
-        printf("\n");
-    }
-}
-
 
 void main() {
 
@@ -47,6 +35,4 @@ void main() {
 		assert(nnz<=n_connections);
 	}
 	printf("PASS\n");
-	printf("MATRIX:\n");
-    print_matrix(M, row_dimension, column_dimension);
 }
