@@ -129,7 +129,7 @@ float** binary_sparse(int row_dimension, int column_dimension, int n_connections
         int block_id = row / block_size; //contrassegno ogni blocco con un id
         int start = block_id * block_size;
         for (int k=0; k<n_connections; k++){
-            int j = start + (genrand64_int64()%column_dimension); //connessioni solo dentro il blocco
+            int j = start + (genrand64_int64() % block_size); //connessioni solo dentro il blocco
             M[row][j] = 2*(int)(genrand64_int64()%2) -1;
         }
     }
