@@ -32,5 +32,5 @@ void test_blocks() {
 		assert(nnz<=n_connections);
 	}
 	printf("PASS\n");
-	printf(M);
+	printf(**M);
 }
