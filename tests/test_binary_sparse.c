@@ -17,6 +17,16 @@ void main() {
         int n_blocks = 5;
 
         float **M = binary_sparse(row_dimension, column_dimension, n_connections, 42, n_blocks);
+		
+    	// print matrix
+    	printf("Matrix M:\n");
+    	for(int i = 0; i < row_dimension; i++){
+        	for(int j = 0; j < column_dimension; j++){
+            	printf("%2.0f ", M[i][j]); 
+        	}
+       	    printf("\n");
+    	}
+    	printf("\n");
 
         int block_size = column_dimension/n_blocks;
 	for(int i=0; i<row_dimension; i++){
