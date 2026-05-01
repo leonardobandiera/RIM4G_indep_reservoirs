@@ -292,7 +292,7 @@ def setup_lib(lib_path):
     lib.print_matrix.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),ctypes.c_int,ctypes.c_int]
     lib.free_matrix.argtypes =  [ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_int]
     lib.free_int_matrix.argtypes =  [ctypes.POINTER(ctypes.POINTER(ctypes.c_int)), ctypes.c_int]
-    lib.binary_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
+    lib.binary_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int]
     lib.binary_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
     lib.uniform_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
     lib.uniform_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
@@ -306,6 +306,8 @@ def setup_lib(lib_path):
     lib.binary_antisymmetric_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
     lib.uniform_antisymmetric_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int]
     lib.uniform_antisymmetric_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
+    lib.binany_symmetric_sparse_blocks.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
+    lib.binary_symmetric_sparse_blocks.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
     lib.Dense_to_Sparse.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_int, ctypes.c_int]
     lib.Dense_to_Sparse.restype = ctypes.POINTER(SparseMatrix)
     lib.free_sparse.argtypes = [ctypes.POINTER(SparseMatrix)]
