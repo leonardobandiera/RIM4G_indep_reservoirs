@@ -292,7 +292,7 @@ def setup_lib(lib_path):
     lib.print_matrix.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),ctypes.c_int,ctypes.c_int]
     lib.free_matrix.argtypes =  [ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_int]
     lib.free_int_matrix.argtypes =  [ctypes.POINTER(ctypes.POINTER(ctypes.c_int)), ctypes.c_int]
-    lib.binary_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int]
+    lib.binary_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
     lib.binary_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
     lib.uniform_sparse.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
     lib.uniform_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
