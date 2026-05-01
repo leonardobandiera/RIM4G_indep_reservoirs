@@ -1,6 +1,6 @@
 import numpy as np 
 import torch
-from ogb.nodeproppred import PygNodePropPredDataset
+from ogb.nodeproppred import NodePropPredDataset
 from torch_geometric.transforms import ToUndirected
 from torch.nn.functional import one_hot
 from torch_geometric.datasets import WikipediaNetwork, WebKB, Actor, Planetoid
@@ -11,6 +11,7 @@ import time
 import warnings 
 import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
+import argparse
 
 
 def get_dataset(root, name):
@@ -24,7 +25,7 @@ def get_dataset(root, name):
         return Actor(root=root)
         
     elif name == 'arxiv': 
-        return PygNodePropPredDataset(name="ogbn-arxiv", transform=ToUndirected())
+        return NodePropPredDataset(name="ogbn-arxiv", transform=ToUndirected())
         
     else:
         raise ValueError(f'Unknown dataset `{name}`')
