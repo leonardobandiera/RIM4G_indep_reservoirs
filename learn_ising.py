@@ -30,7 +30,8 @@ def get_initializer_w_matrix(lib_ising):
             4:lib_ising.uniform_symmetric_sparse,
             5:lib_ising.uniform_symmetric_traceless_sparse,
             6:lib_ising.binary_antisymmetric_sparse,
-            7:lib_ising.uniform_antisymmetric_sparse
+            7:lib_ising.uniform_antisymmetric_sparse,
+            8:lib_ising.binary_symmetric_sparse_blocks
             }
             
             
