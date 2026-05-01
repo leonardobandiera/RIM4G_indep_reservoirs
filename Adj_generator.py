@@ -50,7 +50,7 @@ data = dataset[0]
 
 adj = to_undirected(data.edge_index) 
 
-with open("D:\WorkSpace\ISING\Adj_"+name+".txt", "w") as file:
+with open(".\Adj_"+name+".txt", "w") as file:
     file.write(str(data.num_nodes) + "\n")
     for i in range(data.num_nodes):
         x = adj[0,adj[1,:] == i].numpy()
