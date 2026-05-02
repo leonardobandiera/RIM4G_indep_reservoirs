@@ -299,7 +299,7 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
 {
     float **M = malloc(row_dimension * sizeof(float*));
 
-    if random_state != -1 srand(random_state);
+    if (random_state != -1) srand(random_state);
     else srand(time(NULL));
 
     for (int row=0; row<row_dimension; row++)
