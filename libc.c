@@ -309,21 +309,27 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
     
     int block_size = row_dimension / n_blocks;
 
-    for (int row=0; row<row_dimension; row++)
-        {
-            int block_id = row / block_size;
-            int start = block_id * block_size;
+    for (int block=0; block<n_blocks; block++){
+        int start = block * block_size;
+        int end = start + block_size; //limiti del blocco
 
-            for (int k=0; k<n_connections; k++)
-                {
-                    int j = start + (genrand64_int64() % block_size);
+        int connections = 0; //inizializzazione delle connessioni
+        while (connections < n_connections)
+            {
+                int i = start + (genrand64_int64() % block_size);
+                int j = start + (genrand64_int64() % block_size);
 
-                    float val = 2 * (int)(genrand64_int64() % 2) - 1;
+                if (i == j) continue; //no self loops
+                if (M[i][j] != 0) continue; //evita duplicazioni
 
-                    M[row][j] = val;
-                    M[j][row] = val;
-                }
-        }
+                float val = (genrand64_int64() % 2) ? 1.0f : -1.0f;
+
+                M[i][j] = val;
+                M[j][i] = val;
+
+                connections++
+            }
+    }
     return M;
 }
 
