@@ -327,7 +327,7 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
                 M[i][j] = val;
                 M[j][i] = val;
 
-                connections++
+                connections++;
             }
     }
     return M;
