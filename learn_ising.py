@@ -180,7 +180,7 @@ class Ising(): #per ora lascio perdere iterations e termalization
             return init_(self.dimension, self.w_connections, n_blocks, self.random_state_w)
             
         n_params = len(init_.argtypes)
-        elif n_params==4: 
+        if n_params==4: 
             return init_(self.dimension,self.dimension,self.w_connections, self.random_state_w) 
         
         else: 
