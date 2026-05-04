@@ -6,6 +6,9 @@
 /*
 These unit tests aim at checking the correct implementation of block matrices,
 specifically for binary sparse matrices.
+
+- Checks the symmetry
+- Checks the entries are in {-1, 0, 1}
 */
 
 
@@ -15,12 +18,13 @@ void main() {
         int n_connections = 3;
         int n_blocks = 4;
 
-        float **M = binary_symmetric_sparse_blocks(row_dimension, n_connections, n_blocks, random_state=42);
+        float **M = binary_symmetric_sparse_blocks(row_dimension, n_connections, n_blocks, 42);
 		
     	// print matrix
     	printf("Matrix M:\n");
     	for(int i = 0; i < row_dimension; i++){
         	for(int j = 0; j < row_dimension; j++){
+				assert(M[i][j] == M[j][i]);
             	printf("%2.0f ", M[i][j]); 
         	}
        	    printf("\n");
@@ -34,7 +38,6 @@ void main() {
 		int nnz = 0; //non zero elements, used to check the number of connections is respected
 
 		for(int j=0; j<row_dimension; j++){
-			assert(M[i][j]==M[j][i]);
 			assert(M[i][j]==0 || M[i][j]==1 || M[i][j]==-1);
 			if(M[i][j]!=0){
 				nnz++;
