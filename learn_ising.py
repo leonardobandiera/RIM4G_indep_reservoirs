@@ -175,9 +175,14 @@ class Ising(): #per ora lascio perdere iterations e termalization
     def generate_w_matrix(self,int_type): 
         
         init_ = self.initializer[int_type] 
+        if int_type == 8: #caso della matrice a blocchi
+            n_blocks = 16
+            return init_(self.dimension, self.w_connections, n_blocks, self.random_state_w)
+            
         n_params = len(init_.argtypes)
-        if n_params==4: 
+        elif n_params==4: 
             return init_(self.dimension,self.dimension,self.w_connections, self.random_state_w) 
+        
         else: 
             return init_(self.dimension,self.w_connections, self.random_state_w)
     
