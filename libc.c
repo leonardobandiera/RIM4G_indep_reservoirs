@@ -304,7 +304,7 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
 
     for (int row=0; row<row_dimension; row++)
         {
-            M[row] = calloc(row_dimension, sizeof(float**));
+            M[row] = calloc(row_dimension, sizeof(float));
         }
     
     int block_size = row_dimension / n_blocks;
