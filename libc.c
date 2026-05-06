@@ -302,25 +302,26 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
     if (random_state != -1) srand(random_state);
     else srand(time(NULL));
 
-    for (int row=0; row<row_dimension; row++)
-        {
-            M[row] = calloc(row_dimension, sizeof(float));
-        }
-    
+    for (int i = 0; i < row_dimension; i++)
+        M[i] = calloc(row_dimension, sizeof(float));
+
     int block_size = row_dimension / n_blocks;
 
-    for (int block=0; block<n_blocks; block++){
+    for (int block = 0; block < n_blocks; block++)
+    {
         int start = block * block_size;
-        int end = start + block_size; //limiti del blocco
+        int end   = start + block_size;
 
-        int connections = 0; //inizializzazione delle connessioni
-        while (connections < n_connections)
+        for (int i = start; i < end; i++)
+        {
+            int connections = 0;
+
+            while (connections < n_connections)
             {
-                int i = start + (genrand64_int64() % block_size);
                 int j = start + (genrand64_int64() % block_size);
 
-                if (i == j) continue; //no self loops
-                if (M[i][j] != 0) continue; //evita duplicazioni
+                if (i == j) continue;
+                if (M[i][j] != 0) continue;
 
                 float val = (genrand64_int64() % 2) ? 1.0f : -1.0f;
 
@@ -329,7 +330,9 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
 
                 connections++;
             }
+        }
     }
+
     return M;
 }
 
