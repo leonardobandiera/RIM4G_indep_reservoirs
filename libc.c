@@ -320,7 +320,7 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
 
             while (connections < n_connections && attempts < max_attempts)
             {
-                attempts++
+                attempts++;
                 int j = start + (genrand64_int64() % block_size);
 
                 if (i == j) continue;
