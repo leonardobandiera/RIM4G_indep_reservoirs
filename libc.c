@@ -315,9 +315,12 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
         for (int i = start; i < end; i++)
         {
             int connections = 0;
+            int attempts = 0;
+            int max_attempts = 1000;
 
-            while (connections < n_connections)
+            while (connections < n_connections && attempts < max_attempts)
             {
+                attempts++
                 int j = start + (genrand64_int64() % block_size);
 
                 if (i == j) continue;
