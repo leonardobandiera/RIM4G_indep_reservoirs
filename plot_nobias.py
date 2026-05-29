@@ -86,7 +86,7 @@ for dataset in datasets:
             # varianza fold
             variance_std = np.mean(std_values**2)
 
-            total_stf = np.sqrt(variance_acc + variance_std)
+            total_std = np.sqrt(variance_acc + variance_std)
 
             rows.append({
                 "dataset": dataset,
@@ -105,11 +105,19 @@ fig, axes = plt.subplots(
     sharex=True
 )
 
+all_x = sorted(df["Number of spins per block"].unique())
+
+color_bias = "tab:orange"
+color_no_bias = "tab:blue"
+
 for ax, dataset in zip(axes, datasets):
 
-    df_dataset = df[df["dataset"] == dataset]
+    df_dataset = (
+        df[df["dataset"] == dataset]
+        .sort_values("Number of spins per block")
+    )
 
-    # con input features
+    # with input features
     df_bias = df_dataset[df_dataset["type"] == "bias"]
 
     sns.lineplot(
@@ -117,6 +125,8 @@ for ax, dataset in zip(axes, datasets):
         x="Number of spins per block",
         y="Test accuracy",
         marker="o",
+        color=color_bias,
+        linewidth=2.5,
         ax=ax,
         label="with input features"
     )
@@ -126,10 +136,13 @@ for ax, dataset in zip(axes, datasets):
         df_bias["Test accuracy"],
         yerr=df_bias["total_std"],
         fmt="none",
-        capsize=5
+        ecolor=color_bias,
+        capsize=5,
+        elinewidth=2.5,
+        alpha=0.8
     )
 
-    # no bias
+    # topology only
     df_no_bias = df_dataset[df_dataset["type"] == "no_bias"]
 
     sns.lineplot(
@@ -137,6 +150,8 @@ for ax, dataset in zip(axes, datasets):
         x="Number of spins per block",
         y="Test accuracy",
         marker="s",
+        color=color_no_bias,
+        linewidth=2.5,
         ax=ax,
         label="topology only"
     )
@@ -146,13 +161,19 @@ for ax, dataset in zip(axes, datasets):
         df_no_bias["Test accuracy"],
         yerr=df_no_bias["total_std"],
         fmt="none",
-        capsize=5
+        ecolor=color_no_bias,
+        capsize=5,
+        elinewidth=2.5,
+        alpha=0.8
     )
 
     ax.set_title(dataset)
     ax.set_ylabel("Test accuracy [%]")
 
-    ax.set_xscale("log", base=2)
+    ax.set_xticks(all_x)
+    ax.set_xticklabels(
+        [str(int(x)) for x in all_x]
+    )
 
     ax.legend()
 
@@ -160,8 +181,10 @@ axes[-1].set_xlabel("Number of spins per block")
 
 plt.tight_layout()
 
-plt.savefig("plot_all_datasets.png", dpi=300, bbox_inches="tight")
+plt.savefig(
+    "plot_all_datasets.png",
+    dpi=300,
+    bbox_inches="tight"
+)
 
 plt.show()
-
-
