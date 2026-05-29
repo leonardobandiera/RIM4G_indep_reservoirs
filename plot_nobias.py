@@ -169,7 +169,7 @@ for ax, dataset in zip(axes, datasets):
 
     ax.set_title(dataset)
     ax.set_ylabel("Test accuracy [%]")
-
+    ax.set_xscale("log", base=2)
     ax.set_xticks(all_x)
     ax.set_xticklabels(
         [str(int(x)) for x in all_x]
