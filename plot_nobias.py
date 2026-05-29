@@ -1,23 +1,23 @@
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 import re
+
+sns.set_theme(style="whitegrid", context="talk")
 
 base_path = Path(
     "~/RIM4G/RIM4G_indep_reservoirs/results"
 ).expanduser()
 
-datasets = ["cora", "pubmed", "citeseer"]
+datasets = ["Cora", "PubMed", "CiteSeer"]
 
-plt.figure(figsize=(8, 6))
+rows = []
 
 for dataset in datasets:
 
     dataset_path = base_path / dataset
-
-    blocks = []
-    means = []
-    total_stds = []
 
     # cartelle tipo 8_blocks, 16_blocks, 32_blocks...
     for blocks_dir in sorted(
@@ -27,89 +27,141 @@ for dataset in datasets:
 
         n_blocks = int(blocks_dir.name.split("_")[0])
 
-        accuracies = []
-        std_values = []
+        spin_number = 4096 / n_blocks
 
-        # cerca tutti i ridge_test_accuracy.txt
+        data_dict = {
+            "bias": {
+                "acc": [],
+                "std": []
+            }
+            "no_bias":{
+                "acc": [],
+                "std": []
+            }
+        }
+
         for acc_file in blocks_dir.rglob("ridge_test_accuracy.txt"):
 
             path_str = str(acc_file)
 
-            # escludi path con pattern tipo:
-            # 1bias, 0.5bias, 10bias, ma anche bias1, bias0.5, ecc.
-            if re.search(r"\d*\.?\d+bias|bias\d*\.?\d+", path_str):
-                continue
+            is_bias = bool(
+                re.search(
+                    r"\d*\.?\d+bias|bias\d*\.?\d+",
+                    path_str
+                )
+            )
 
             try:
-                # accuracy
+
                 acc_data = np.loadtxt(acc_file)
                 acc_last = np.atleast_1d(acc_data)[-1]
 
-                # std associata
                 std_file = acc_file.parent / "std_test.txt"
                 std_data = np.loadtxt(std_file)
                 std_last = np.atleast_1d(std_data)[-1]
 
-                accuracies.append(acc_last)
-                std_values.append(std_last)
+                key = "bias" if is_bias else "no_bias"
+
+                data_dict[key]["acc"].append(acc_last)
+                data_dict[key]["std"].append(std_last)
 
             except Exception as e:
                 print(f"Errore con {acc_file}: {e}")
 
-        if len(accuracies) > 0:
+        for key in ["bias", "no_bias"]:
 
-            accuracies = np.array(accuracies)
-            std_values = np.array(std_values)
+            accuracies = np.array(data_dict[key]["acc"])
+            std_values = np.array(data_dict[key]["std"])
 
-                                  
+            if len(accuracies) == 0:
+                continue
+
             mean_acc = np.mean(accuracies)
 
-            # calcolo di std complessiva
-            # std dovuta ai seed:
-            variance_acc = np.mean((accuracies - mean_acc) ** 2)
-            # std dovuta ai fold:
-            variance_std = np.mean(std_values ** 2)
-            
-            std_tot = np.sqrt(variance_acc + variance_std)
+            # varianza seed
+            variance_acc = np.mean(
+                (accuracies - mean_acc)**2
+            )
 
-            blocks.append(n_blocks)
-            means.append(mean_acc)
-            total_stds.append(std_tot)
+            # varianza fold
+            variance_std = np.mean(std_values**2)
 
-            print(f"\n{dataset} - {n_blocks} blocks")
-            print(f"accuracies = {accuracies}")
-            print(f"std_values = {std_values}")
-            print(f"mean       = {mean_acc:.4f}")
-            print(f"total std  = {std_tot:.4f}")
+            total_stf = np.sqrt(variance_acc + variance_std)
 
-    # plot dataset corrente
-    plt.errorbar(
-        blocks,
-        means,
-        yerr=total_stds,
-        fmt='o-',
-        capsize=5,
-        label=dataset
+            rows.append({
+                "dataset": dataset,
+                "Number of spins per block": spin_number, 
+                "Test accuracy": mean_acc,
+                "total_std": total_std,
+                "type": key
+            })
+
+df = pd.DataFrame(rows)
+
+fig, axes = plt.subplots(
+    3,
+    1,
+    figsize=(10, 16),
+    sharex=True
+)
+
+for ax, dataset in zip(axes, datasets):
+
+    df_dataset = df[df["dataset"] == dataset]
+
+    # con input features
+    df_bias = df_dataset[df_dataset["type"] == "bias"]
+
+    sns.lineplot(
+        data=df_bias,
+        x="Number of spins per block",
+        y="Test accuracy",
+        marker="o",
+        ax=ax,
+        label="with input features"
     )
 
-plt.xlabel("Number of blocks")
-plt.ylabel("Test accuracy [%]")
+    ax.errorbar(
+        df_bias["Number of spins per block"],
+        df_bias["Test accuracy"],
+        yerr=df_bias["total_std"],
+        fmt="none",
+        capsize=5
+    )
 
-plt.xscale('log', base=2)
+    # no bias
+    df_no_bias = df_dataset[df_dataset["type"] == "no_bias"]
 
-all_blocks = sorted({
-    int(p.name.split("_")[0])
-    for dataset in datasets
-    for p in (base_path / dataset).glob("*_blocks")
-})
+    sns.lineplot(
+        data=df_no_bias,
+        x="Number of spins per block",
+        y="Test accuracy",
+        marker="s",
+        ax=ax,
+        label="topology only"
+    )
 
-plt.xticks(all_blocks, all_blocks)
+    ax.errorbar(
+        df_no_bias["Number of spins per block"],
+        df_no_bias["Test accuracy"],
+        yerr=df_no_bias["total_std"],
+        fmt="none",
+        capsize=5
+    )
 
-plt.grid(True)
-plt.legend()
+    ax.set_title(dataset)
+    ax.set_ylabel("Test accuracy [%]")
+
+    ax.set_xscale("log", base=2)
+
+    ax.legend()
+
+axes[-1].set_xlabel("Number of spins per block")
 
 plt.tight_layout()
 
-plt.savefig("all_datasets_accuracy.png", dpi=300)
+plt.savefig("plot_all_datasets.png", dpi=300, bbox_inches="tight")
 
 plt.show()
+
+
