@@ -27,7 +27,7 @@ for dataset in datasets:
 
         n_blocks = int(blocks_dir.name.split("_")[0])
 
-        accuracy = []
+        accuracies = []
         std_values = []
 
         # cerca tutti i ridge_test_accuracy.txt
@@ -54,12 +54,12 @@ for dataset in datasets:
                 std_values.append(std_last)
 
             except Exception as e:
-                print(f"Errore con {file_path}: {e}")
+                print(f"Errore con {acc_file}: {e}")
 
         if len(accuracies) > 0:
 
             accuracies = np.array(accuracies)
-            sts_values = np.array(std_values
+            std_values = np.array(std_values)
 
                                   
             mean_acc = np.mean(accuracies)
@@ -74,13 +74,13 @@ for dataset in datasets:
 
             blocks.append(n_blocks)
             means.append(mean_acc)
-            total_stds.append(total_std)
+            total_stds.append(std_tot)
 
             print(f"\n{dataset} - {n_blocks} blocks")
             print(f"accuracies = {accuracies}")
             print(f"std_values = {std_values}")
             print(f"mean       = {mean_acc:.4f}")
-            print(f"total std  = {total_std:.4f}")
+            print(f"total std  = {std_tot:.4f}")
 
     # plot dataset corrente
     plt.errorbar(
