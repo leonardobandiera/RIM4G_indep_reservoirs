@@ -3,12 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import re
 
-# cartella principale results/
 base_path = Path(
     "~/RIM4G/RIM4G_indep_reservoirs/results"
 ).expanduser()
 
-# dataset da confrontare
 datasets = ["cora", "pubmed", "citeseer"]
 
 plt.figure(figsize=(8, 6))
@@ -19,7 +17,7 @@ for dataset in datasets:
 
     blocks = []
     means = []
-    stds = []
+    total_stds = []
 
     # cartelle tipo 8_blocks, 16_blocks, 32_blocks...
     for blocks_dir in sorted(
@@ -29,63 +27,76 @@ for dataset in datasets:
 
         n_blocks = int(blocks_dir.name.split("_")[0])
 
-        values = []
+        accuracy = []
+        std_values = []
 
         # cerca tutti i ridge_test_accuracy.txt
-        for file_path in blocks_dir.rglob("ridge_test_accuracy.txt"):
+        for acc_file in blocks_dir.rglob("ridge_test_accuracy.txt"):
 
-            path_str = str(file_path)
+            path_str = str(acc_file)
 
             # escludi path con pattern tipo:
-            # 1bias, 0.5bias, 10bias, ecc.
-            if re.search(r"\d*\.?\d+bias", path_str):
+            # 1bias, 0.5bias, 10bias, ma anche bias1, bias0.5, ecc.
+            if re.search(r"\d*\.?\d+bias|bias\d*\.?\d+", path_str):
                 continue
 
             try:
-                data = np.loadtxt(file_path)
+                # accuracy
+                acc_data = np.loadtxt(acc_file)
+                acc_last = np.atleast_1d(acc_data)[-1]
 
-                # prende l'ultimo valore
-                last_value = np.atleast_1d(data)[-1]
+                # std associata
+                std_file = acc_file.parent / "std_test.txt"
+                std_data = np.loadtxt(std_file)
+                std_last = np.atleast_1d(std_data)[-1]
 
-                values.append(last_value)
+                accuracies.append(acc_last)
+                std_values.append(std_last)
 
             except Exception as e:
                 print(f"Errore con {file_path}: {e}")
 
-        if len(values) > 0:
+        if len(accuracies) > 0:
 
-            mean = np.mean(values)
-            std = np.std(values)
+            accuracies = np.array(accuracies)
+            sts_values = np.array(std_values
+
+                                  
+            mean_acc = np.mean(accuracies)
+
+            # calcolo di std complessiva
+            # std dovuta ai seed:
+            variance_acc = np.mean((accuracies - mean_acc) ** 2)
+            # std dovuta ai fold:
+            variance_std = np.mean(std_values ** 2)
+            
+            std_tot = np.sqrt(variance_acc + variance_std)
 
             blocks.append(n_blocks)
-            means.append(mean)
-            stds.append(std)
+            means.append(mean_acc)
+            total_stds.append(total_std)
 
             print(f"\n{dataset} - {n_blocks} blocks")
-            print(f"values = {values}")
-            print(f"mean   = {mean:.4f}")
-            print(f"std    = {std:.4f}")
+            print(f"accuracies = {accuracies}")
+            print(f"std_values = {std_values}")
+            print(f"mean       = {mean_acc:.4f}")
+            print(f"total std  = {total_std:.4f}")
 
     # plot dataset corrente
     plt.errorbar(
         blocks,
         means,
-        yerr=stds,
+        yerr=total_stds,
         fmt='o-',
         capsize=5,
         label=dataset
     )
-
-# -------------------
-# grafico finale
-# -------------------
 
 plt.xlabel("Number of blocks")
 plt.ylabel("Test accuracy [%]")
 
 plt.xscale('log', base=2)
 
-# tick asse x
 all_blocks = sorted({
     int(p.name.split("_")[0])
     for dataset in datasets
