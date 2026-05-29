@@ -174,6 +174,7 @@ for ax, dataset in zip(axes, datasets):
     ax.set_xticklabels(
         [str(int(x)) for x in all_x]
     )
+    ax.tick_params(axis='x', labelbottom=True)
 
     ax.legend()
 
