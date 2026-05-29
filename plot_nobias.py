@@ -33,7 +33,7 @@ for dataset in datasets:
             "bias": {
                 "acc": [],
                 "std": []
-            }
+            },
             "no_bias":{
                 "acc": [],
                 "std": []
