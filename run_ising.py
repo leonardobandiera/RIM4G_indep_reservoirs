@@ -73,7 +73,19 @@ def set_seed(seed: int = 42):
     
     
     
-               
+def uncoupled_features(emb, q=0.9):
+
+    H = emb.astype(np.float64)
+
+    singular_values = np.linalg.svd( # computation of singular values
+        H, compute_uv= False
+    )
+    cumulative = np.cumsum(singular_values) # cumulative sum of singular values
+    cumulative /= cumulative[-1] #normalization
+
+    uq = np.searchsorted(cumulative, q) + 1 # finds the first value above the threshold
+
+    return uq
     
             
     
@@ -174,6 +186,7 @@ def main(args):
     energy_file =os.path.join(tot_dir,"sim_energy.txt") 
     file_with_val_std = os.path.join(tot_dir,"std_val.txt") 
     file_with_test_std = os.path.join(tot_dir,"std_test.txt")
+    file_uncoupled = os.path.join(tot_dir, "uncoupled_features.txt")
 
     
 
@@ -220,6 +233,7 @@ def main(args):
          
         energy = model.simulate(iter_*data.num_nodes,initial_energy)
         _,emb = model.save_to_numpy(save_file=False)   #mettere True se si vuole salvare l'embedding su disco
+        u90 = uncoupled_features(emb)
        
         ridge_val, ridge_test,std_val,std_test= ridge_regression(dataset,data,emb,dimension)   
             
@@ -250,6 +264,11 @@ def main(args):
             os.fsync(f.fileno())
         with open(file_ridge_test,"a") as f:
             f.write(str(ridge_test))
+            f.write("\n")
+            f.flush()
+            os.fsync(f.fileno())
+        with open(file_uncoupled, "a") as f:
+            f.write(str(u90))
             f.write("\n")
             f.flush()
             os.fsync(f.fileno())
