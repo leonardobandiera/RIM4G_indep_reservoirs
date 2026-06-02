@@ -31,7 +31,8 @@ def get_initializer_w_matrix(lib_ising):
             5:lib_ising.uniform_symmetric_traceless_sparse,
             6:lib_ising.binary_antisymmetric_sparse,
             7:lib_ising.uniform_antisymmetric_sparse,
-            8:lib_ising.binary_symmetric_sparse_blocks
+            8:lib_ising.binary_symmetric_sparse_blocks,
+            9:lib_ising.binary_symmetric_cloned_blocks
             }
             
             
@@ -175,7 +176,7 @@ class Ising(): #per ora lascio perdere iterations e termalization
     def generate_w_matrix(self,int_type): 
         
         init_ = self.initializer[int_type] 
-        if int_type == 8: #caso della matrice a blocchi
+        if (int_type == 8 or int_type == 9): #caso della matrice a blocchi
             n_blocks = 16
             return init_(self.dimension, self.w_connections, n_blocks, self.random_state_w)
             
@@ -313,6 +314,8 @@ def setup_lib(lib_path):
     lib.uniform_antisymmetric_sparse.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
     lib.binary_symmetric_sparse_blocks.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
     lib.binary_symmetric_sparse_blocks.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
+    lib.binary_symmetric_cloned_blocks.argtypes = [ctypes.c_int,ctypes.c_int,ctypes.c_int,ctypes.c_int]
+    lib.binary_symmetric_cloned_blocks.restype = ctypes.POINTER(ctypes.POINTER(ctypes.c_float))
     lib.Dense_to_Sparse.argtypes = [ctypes.POINTER(ctypes.POINTER(ctypes.c_float)), ctypes.c_int, ctypes.c_int]
     lib.Dense_to_Sparse.restype = ctypes.POINTER(SparseMatrix)
     lib.free_sparse.argtypes = [ctypes.POINTER(SparseMatrix)]
