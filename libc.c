@@ -363,7 +363,7 @@ float** binary_symmetric_cloned_blocks(int row_dimension, int n_connections, int
             int attempts = 0;
             int max_attempts = 1000;
 
-            while (connections < n_connections && attempts < max_attempts):
+            while (connections < n_connections && attempts < max_attempts)
                 {
                     attempts++;
 
