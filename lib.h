@@ -52,6 +52,7 @@ float** uniform_symmetric_traceless_sparse(int, int, int);
 float** binary_antisymmetric_sparse(int, int, int); 
 float** uniform_antisymmetric_sparse(int, int, int); 
 float** binary_symmetric_sparse_blocks(int, int, int, int); //added after having added the new function
+float** binary_symmetric_cloned_blocks(int, int, int, int); //idem come sopra
 Sparse_matrix* Dense_to_Sparse( float **, int, int); 
 ssize_t getline(char **, size_t *, FILE *); 
 float** read_matrix(const char* , int, int);
