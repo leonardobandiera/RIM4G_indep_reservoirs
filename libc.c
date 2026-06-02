@@ -339,6 +339,69 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
     return M;
 }
 
+float** binary_symmetric_cloned_blocks(int row_dimension, int n_connections, int n_blocks, int random_state):
+{
+    float **M = malloc(row_dimension * sizeof(float*));
+
+    if (random_state != -1) srand(random_state);
+    else srand(time(NULL));
+
+    for (int i = 0; i < row_dimension; i++)
+        M[i] = calloc(row_dimension, sizeof(float));
+
+    int block_size = row_dimension / n_blocks;
+
+    // blocco prototipo
+    float **B = malloc(block_size * sizeof(float*));
+
+    for (int i = 0; i < block_size; i++)
+        B[i] = calloc(block_size, sizeof(float));
+
+    for (int i = 0; i < block_size; i++)
+        {
+            int connections = 0;
+            int attempts = 0;
+            int max_attempts = 1000;
+
+            while (connections < n_connections && attempts < max_attempts):
+                {
+                    attempts++;
+
+                    int j = genrand64_int64() % block_size;
+                    if (i == j) continue;
+                    if (B[i][j] != 0) continue;
+
+                    float val = (genrand64_int64() % 2) ? 1.0f : -1.0f;
+
+                    B[i][j] = val;
+                    B[j][i] = val;
+
+                    connections++;
+                }
+        }
+
+    // copio il blocco in tutti gli slot blocco
+    for (int block = 0; block < n_blocks; block++)
+        {
+            int start = block * block_size;
+
+            for (int i = 0; i < block_size; i++)
+                {
+                    for (int j = 0; j < block_size; j++)
+                        {
+                            M[start + i][start + j] = B[i][j];
+                        }
+                }
+        }
+    // libera il prototipo
+    for (int i = 0; i < block_size; i++)
+        free(B[i]);
+
+    free(B);
+
+    return M;
+}
+
 Sparse_matrix * Dense_to_Sparse( float ** M, int row_dimension, int column_dimension )
 {
     int row,col,count;
