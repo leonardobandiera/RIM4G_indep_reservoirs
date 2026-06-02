@@ -339,7 +339,7 @@ float** binary_symmetric_sparse_blocks(int row_dimension, int n_connections, int
     return M;
 }
 
-float** binary_symmetric_cloned_blocks(int row_dimension, int n_connections, int n_blocks, int random_state):
+float** binary_symmetric_cloned_blocks(int row_dimension, int n_connections, int n_blocks, int random_state)
 {
     float **M = malloc(row_dimension * sizeof(float*));
 
