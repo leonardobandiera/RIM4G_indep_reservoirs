@@ -90,10 +90,13 @@ def uncoupled_features(emb, q=0.9):
     
             
     
-def ridge_regression(dataset,data,emb,dimension):
+def ridge_regression(dataset,data,emb,dimension,dev=0):
 
-
-    device = 'cpu'
+    if dev==0:
+        device = torch.device('cuda:0' if torch.cuda.is_available else 'cpu')
+        print(device)
+    else:
+        device = 'cuda:1'
     #ld = 0
     y = one_hot(data.y, dataset.num_classes).float().to(device)
     x = torch.Tensor(emb).to(device)
@@ -166,14 +169,16 @@ def main(args):
     emb = os.path.join(save_dir, "embedding2.npy")
     emb = np.load(emb)
     emb = emb.T
+    emb = emb.astype("float32")
     data = dataset[0]
 
-    pca = PCA(n_components=dimension)
+    pca = PCA(n_components=dimension, svd_solver="randomized")
     pca.fit(emb)
     emb = pca.components_
     print(emb.shape)
     emb = emb.T
-    ridge_val, ridge_test, std_val, std_test = ridge_regression(dataset, data, emb, dimension)
+    print(f"fatto!")
+    ridge_val, ridge_test, std_val, std_test = ridge_regression(dataset, data, emb, dimension,args.dev)
     print(ridge_test)
     file_with_acc = os.path.join(save_dir,"ridge_val_accuracy"+str(dimension)+".txt") 
     file_ridge_test = os.path.join(save_dir,"ridge_test_accuracy"+str(dimension)+".txt")    
@@ -187,5 +192,9 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", default= 'cora')
     parser.add_argument("--save_dir",default='./') 
     parser.add_argument("--dimension",type=int,default=4096)
+    parser.add_argument("--dev", type=int, default=0)
     args =parser.parse_args() 
     main(args)
+    pca.fit(emb)
+    emb = pca.components_
+    print(emb.shape)
