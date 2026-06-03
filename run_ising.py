@@ -243,7 +243,7 @@ def main(args):
     for i in range(num_loop): 
          
         energy = model.simulate(iter_*data.num_nodes,initial_energy)
-        _,emb = model.save_to_numpy(save_file=False)   #mettere True se si vuole salvare l'embedding su disco
+        _,emb = model.save_to_numpy(save_file=True)   #mettere True se si vuole salvare l'embedding su disco
         u90 = uncoupled_features(emb)
 
         components_list = [4096, 2048, 1024, 512, 256, 128, 64, 32, 16]
