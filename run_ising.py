@@ -1,6 +1,7 @@
 import ctypes 
 #import learn_ising 
 from learn_ising import *
+from sklearn.decomposition import PCA
 #import torch.serialization
 #torch.serialization.weights_only = False
 
@@ -89,13 +90,23 @@ def uncoupled_features(emb, q=0.9):
     
             
     
-def ridge_regression(dataset,data,emb,dimension):
+def ridge_regression(dataset,data,emb,dimension, n_components=None):
 
 
     device = 'cpu'
     #ld = 0
     y = one_hot(data.y, dataset.num_classes).float().to(device)
-    x = torch.Tensor(emb).to(device)
+
+    if n_components is not None:
+
+        scaler = StandardScaler()
+        emb_scaled = scaler.fit_transform(emb)
+        pca = PCA(n_components=n_components)
+        emb = pca.fit_transform(emb_scaled)
+
+        print(f"PCA: {dimension} -> {emb.shape[1]}")
+
+    x = torch.Tensor(emb, dtype=torch.float32).to(device)
 
     best_acc_test = 0
     bast_acc_val = 0
@@ -124,7 +135,7 @@ def ridge_regression(dataset,data,emb,dimension):
         
 
         for i in range(data.train_mask.shape[1]):
-            readout = Readout(num_features=4096,num_targets=dataset.num_classes).to(device)
+            readout = Readout(num_features=x.shape[1],num_targets=dataset.num_classes).to(device)
             readout.fit((x[data.train_mask[:,i]], y[data.train_mask[:,i]]), ld)
             y_pred = readout(x.to(device))
             lista_score_val.append((y_pred[data.val_mask[:,i]].argmax(dim=-1).to('cpu') == data.y[data.val_mask[:,i]]).float().to('cpu').mean() * 100)
@@ -234,8 +245,16 @@ def main(args):
         energy = model.simulate(iter_*data.num_nodes,initial_energy)
         _,emb = model.save_to_numpy(save_file=False)   #mettere True se si vuole salvare l'embedding su disco
         u90 = uncoupled_features(emb)
-       
-        ridge_val, ridge_test,std_val,std_test= ridge_regression(dataset,data,emb,dimension)   
+
+        components_list = [4096, 2048, 1024, 512, 256, 128, 64, 32, 16]
+
+        for nc in components_list:
+            ridge_val, ridge_test,std_val,std_test= ridge_regression(dataset,data,emb,dimension,n_components=nc)
+
+            print(f"PCA={nc}"
+                  f"Val={ridge_val:.2f} "
+                  f"Test={ridge_test:.2f}"
+                )
             
         if args.iter_<3: 
             iter_=3
