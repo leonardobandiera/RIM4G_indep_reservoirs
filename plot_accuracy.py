@@ -5,6 +5,7 @@ import seaborn as sns
 import pandas as pd
 import re
 from matplotlib.ticker import FormatStrFormatter
+from scipy.stats import ttest_ind_from_stats
 
 sns.set_theme(style="whitegrid", context="talk")
 
@@ -109,10 +110,50 @@ for dataset in datasets:
                 "Number of spins per block": spin_number, 
                 "Test accuracy": mean_acc,
                 "total_std": total_std,
-                "type": key
+                "type": key,
+                "raw_acc": accuracies
             })
 
+#### test statistico ###
 df = pd.DataFrame(rows)
+
+n_folds = 10
+
+baseline_stats = {}
+
+for dataset in datasets:
+    for typ in ["bias", "no_bias"]:
+        baseline_stats[(dataset, typ)] = {"mean": manual_values[dataset][typ]["y"], "std": manual_values[dataset][typ]["err"]}
+
+
+
+
+p_values = []
+for _, row in df.iterrows():
+    k = row["Number of spins per block"]
+
+    if k == 4096:
+        p_values.append(np.nan)
+        continue
+    dataset = row["dataset"]
+    typ = row["type"]
+
+    mean1 = row["Test accuracy"]
+    std1 = row["total_std"]
+
+    mean2 = baseline_stats[(dataset, typ)]["mean"]
+    std2 = baseline_stats[(dataset, typ)]["std"]
+
+    _, p = ttest_ind_from_stats(mean1=mean1, std1=std1, nobs1=n_folds, mean2=mean2, std2=std2, nobs2=n_folds, equal_var=False)
+
+    p_values.append(p)
+
+df["p_value"] = p_values
+df["p_value"] = df["p_value"].map(lambda x: f"'{x:.10f}")
+df.to_csv("reservoir_pvalues_results.csv", index=False)
+
+### plot ###
+
 
 fig, axes = plt.subplots(
     3,
@@ -126,7 +167,6 @@ all_x = sorted(set(all_x + [4096]))
 
 color_bias = "tab:orange"
 color_no_bias = "tab:blue"
-
 for i, dataset in enumerate(datasets):
 
     df_dataset = (
